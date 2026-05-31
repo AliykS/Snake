@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Snake
+﻿namespace SnakeGame
 {
     public enum Direction
     {
@@ -10,6 +6,5 @@ namespace Snake
         Down,
         Left,
         Right
-
     }
 }
