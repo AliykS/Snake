@@ -32,7 +32,7 @@ namespace SnakeGame
                 {
                     case 1:
                         StartGame();
-                        break;
+                        continue;
 
                     case 0:
                         check = false;
