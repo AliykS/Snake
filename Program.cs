@@ -1,42 +1,109 @@
-﻿
+﻿using Npgsql;
+using Snake;
 using System;
 using System.Diagnostics;
-using static System.Console;
-using Npgsql;
-using System.Reflection.Metadata.Ecma335;
 using System.Linq;
-using System.Threading;
+using static System.Console;
 
 namespace SnakeGame
 {
     class Program
     {
-        static void Main()
+        static void ShowMenu()
         {
-
             Console.WriteLine("Здравствуйте!");
             Console.WriteLine("Добро пожаловать в игру Змейка!");
             Console.WriteLine("1. Запустить игру");
             Console.WriteLine("2. Посмотреть правила игры");
             Console.WriteLine("3. Посмотреть игроков и их счёт");
+            Console.WriteLine("4. Зарегистрироваться");
             Console.WriteLine("0. Выход");
+        }
+        static void Main()
+        {
+            ShowMenu();
+
+            DB db = new DB();
+
+            string currentPlayer = "";
 
             bool check = true;
 
             while (check)
             {
-                Console.WriteLine("Выберите что Вы хотите сделать");
+                
+                Console.WriteLine("Выберите что Вы хотите сделать:");
+
                 int numb = int.Parse(Console.ReadLine());
 
                 switch (numb)
                 {
                     case 1:
-                        StartGame();
-                        continue;
+                        {
+                            if (currentPlayer == "")
+                            {
+                                Console.WriteLine("Сначала зарегистрируйтесь!");
+                                break;
+                            }
+
+                            int score = StartGame();
+
+                            db.UpdateScore(currentPlayer, score);
+
+                            break;
+                        }
+
+                    case 2:
+                        {
+                            Console.WriteLine("Управление:");
+                            Console.WriteLine("W - вверх");
+                            Console.WriteLine("A - влево");
+                            Console.WriteLine("S - вниз");
+                            Console.WriteLine("D - вправо");
+                            Console.WriteLine("Не врезайтесь в стены и в себя.");
+
+                            break;
+                        }
+
+                    case 3:
+                        {
+                            db.GetPlayers();
+                            break;
+                        }
+
+                    case 4:
+                        {
+                            Console.WriteLine("Введите своё имя:");
+
+                            string name = Console.ReadLine();
+
+                            if (name.Length > 0)
+                            {
+                                db.AddPlayer(name);
+
+                                currentPlayer = name;
+
+                                Console.WriteLine("Игрок успешно зарегистрирован!");
+                            }
+                            else
+                            {
+                                Console.WriteLine("Имя не может быть пустым!");
+                            }
+
+                            break;
+                        }
 
                     case 0:
-                        check = false;
-                        break;
+                        {
+                            check = false;
+                            break;
+                        }
+
+                    default:
+                        {
+                            Console.WriteLine("Неверный пункт меню.");
+                            break;
+                        }
                 }
             }
         }
@@ -54,7 +121,7 @@ namespace SnakeGame
 
         private static readonly Random Random = new Random();
 
-        static void StartGame()
+        static int StartGame()
         {
             SetWindowSize(ScreenWight, ScreenHeght);
             SetBufferSize(ScreenWight, ScreenHeght);
@@ -118,7 +185,10 @@ namespace SnakeGame
             SetCursorPosition(ScreenWight / 3, ScreenHeght / 2);
 
             WriteLine($"Игра окончена. Ваш счёт: {score}");
+
+            return score;
         }
+
         static Pixel GenFood(Snake snake)
         {
             Pixel food;
@@ -172,4 +242,5 @@ namespace SnakeGame
             }
         }
     }
+
 }

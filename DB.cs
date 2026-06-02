@@ -1,15 +1,17 @@
-﻿using System;
-using Npgsql;
+﻿using Npgsql;
+using System;
+using System.Xml.Linq;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Snake
 {
+
     class DB
     {
         public void GetPlayers()
         {
             string connString =
                 "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=admin";
-
             using (var conn = new NpgsqlConnection(connString))
             {
                 try
@@ -41,5 +43,40 @@ namespace Snake
                 }
             }
         }
+        public void AddPlayer(string name)
+        {
+            string connString =
+                "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=admin";
+            using (var conn = new NpgsqlConnection(connString))
+            {
+                conn.Open();
+
+                string sql =
+                    "INSERT INTO players(name, score) VALUES(@name, 0)";
+
+                NpgsqlCommand command = new NpgsqlCommand(sql, conn);
+
+                command.Parameters.AddWithValue("name", name);
+
+                command.ExecuteNonQuery();
+            }
+        }
+        public void UpdateScore(string name, int score)
+        {
+            string connString =
+                "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=admin";
+            using (var conn = new NpgsqlConnection(connString))
+            {
+                conn.Open();
+                string sql = "UPDATE players SET score = @score WHERE name = @name";
+                NpgsqlCommand command = new NpgsqlCommand(sql, conn);
+
+                command.Parameters.AddWithValue("score", score);
+                command.Parameters.AddWithValue("name", name);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
     }
 }
