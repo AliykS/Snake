@@ -31,7 +31,11 @@ namespace SnakeGame
 
             while (check)
             {
-                
+
+                Console.Clear();
+                ShowMenu();
+
+                Console.WriteLine();
                 Console.WriteLine("Выберите что Вы хотите сделать:");
 
                 int numb = int.Parse(Console.ReadLine());
@@ -40,11 +44,7 @@ namespace SnakeGame
                 {
                     case 1:
                         {
-                            if (currentPlayer == "")
-                            {
-                                Console.WriteLine("Сначала зарегистрируйтесь!");
-                                break;
-                            }
+                            
 
                             int score = StartGame();
 
@@ -110,11 +110,11 @@ namespace SnakeGame
 
         private const int MapWight = 30;
         private const int MapHeght = 20;
-        private const int ScreenWight = MapWight * 3;
-        private const int ScreenHeght = MapHeght * 3;
+        private const int ScreenWight = MapWight * 2;
+        private const int ScreenHeght = MapHeght * 2;
         private const int FrameMs = 200;
 
-        private const ConsoleColor Border = ConsoleColor.Gray;
+        private const ConsoleColor Border = ConsoleColor.Yellow;
         private const ConsoleColor HeadColor = ConsoleColor.Blue;
         private const ConsoleColor BodyColor = ConsoleColor.DarkBlue;
         private const ConsoleColor FoodColor = ConsoleColor.Red;
@@ -137,6 +137,7 @@ namespace SnakeGame
 
             Pixel food = GenFood(snake);
             food.Draw();
+            
 
             int score = 0;
 
@@ -156,18 +157,40 @@ namespace SnakeGame
                     }
                 }
 
-                if (snake.Head.X == food.X && snake.Head.Y == food.Y)
+                bool willEat = false;
+
+                switch (currentMovement)
                 {
-                    snake.Move(currentMovement, true);
+                    case Direction.Right:
+                        willEat = snake.Head.X + 1 == food.X
+                                  && snake.Head.Y == food.Y;
+                        break;
+
+                    case Direction.Left:
+                        willEat = snake.Head.X - 1 == food.X
+                                  && snake.Head.Y == food.Y;
+                        break;
+
+                    case Direction.Up:
+                        willEat = snake.Head.X == food.X
+                                  && snake.Head.Y - 1 == food.Y;
+                        break;
+
+                    case Direction.Down:
+                        willEat = snake.Head.X == food.X
+                                  && snake.Head.Y + 1 == food.Y;
+                        break;
+                }
+                snake.Move(currentMovement, willEat);
+
+                if (willEat)
+                {
+                    score++;
 
                     food = GenFood(snake);
+                    
+                    
                     food.Draw();
-
-                    score++;
-                }
-                else
-                {
-                    snake.Move(currentMovement);
                 }
 
                 if (snake.Head.X == MapWight - 1
@@ -185,19 +208,25 @@ namespace SnakeGame
             SetCursorPosition(ScreenWight / 3, ScreenHeght / 2);
 
             WriteLine($"Игра окончена. Ваш счёт: {score}");
-
+            Console.ReadKey();
+            Console.Clear();
             return score;
+            
         }
 
         static Pixel GenFood(Snake snake)
         {
             Pixel food;
 
+            int count = 0;
+
             do
             {
-                food = new Pixel(
-                    Random.Next(1, MapWight - 2),
-                    Random.Next(1, MapHeght - 2),
+                count++;
+
+                food = FoodFactory.CreateFood(
+                    MapWight,
+                    MapHeght,
                     FoodColor);
             }
             while (
@@ -205,9 +234,10 @@ namespace SnakeGame
                 || snake.Body.Any(b => b.X == food.X && b.Y == food.Y)
             );
 
+            
+
             return food;
         }
-
         static Direction ReadMovement(Direction currentDirection)
         {
             if (!KeyAvailable)

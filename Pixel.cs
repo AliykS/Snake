@@ -5,7 +5,7 @@ namespace SnakeGame
     public readonly struct Pixel
     {
         private const char PixelChar = '█';
-        public Pixel(int x, int y, ConsoleColor color, int pixelSize = 3)
+        public Pixel(int x, int y, ConsoleColor color, int pixelSize = 2)
         {
             X = x;
             Y = y;
